@@ -1,5 +1,5 @@
 <?php
-
+die('up');
 session_start();
 
 require __DIR__ . '/alfa-base.php';
