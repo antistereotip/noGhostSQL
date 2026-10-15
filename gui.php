@@ -14,7 +14,7 @@ function e($s): string
     return htmlspecialchars((string) $s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
-function redirect(string $url = 'bazaradi.php'): void
+function redirect(string $url = 'gui.php'): void
 {
     header('Location: ' . $url);
     exit;
