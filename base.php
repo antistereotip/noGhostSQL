@@ -1,4 +1,12 @@
-<pre>This is documentation file base.php</pre>
+<pre>
+This is the noGhostSQL (base.php) database documentation. It is a non-relational database. 
+The database simply indexes the data and places it in the /data folder as .json files. 
+We are currently working on optimizing the engine itself. Stay tuned.
+In no case should we disrupt the logic of the No SQL database. 
+It now works very fast and reliably with these features. We recommend that you use the 
+Github repo for each update. Use the files *-gui.php only as a test and be sure to delete 
+them from the database after use or protect them with a password so that only you can access them.
+</pre>
 
 <style>
     :root { --bg:#f5f6f8; --card:#fff; --text:#1d2330; --muted:#6b7280; --line:#e2e5ea; --accent:#2563eb; --danger:#dc2626; --ok:#15803d; }
