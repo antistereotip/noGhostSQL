@@ -2,7 +2,7 @@
 
 session_start();
 
-require __DIR__ . '/beta-database.php';
+require __DIR__ . '/beta-base.php';
 
 $db = new MiniNoSQL(__DIR__ . '/data');
 

@@ -12,7 +12,7 @@ $id = $db->insert([
     'city' => 'Beograd'
 ]);
 
-echo "Novi ID: " . $id . "<br><br>";
+echo "Novi ID: " . $id . "<br>";
 
 
 // ČITANJE

@@ -1,2 +1,0 @@
-# noghostSQL
-Lightweight Database

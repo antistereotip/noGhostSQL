@@ -14,7 +14,7 @@ function e($s): string
     return htmlspecialchars((string) $s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
-function redirect(string $url = 'gui.php'): void
+function redirect(string $url = 'alfa-gui.php'): void
 {
     header('Location: ' . $url);
     exit;
@@ -123,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($data === null) {
                 flash('err', 'Neispravan unos.');
-                redirect('index.php?edit=' . urlencode($id));
+                redirect('alfa-gui.php?edit=' . urlencode($id));
             }
 
             if ($db->update($id, $data)) {
@@ -179,7 +179,7 @@ $shown = array_slice($docs, 0, 100);
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MiniNoSQL</title>
+<title>noGhostSQL</title>
 <style>
     :root { --bg:#f5f6f8; --card:#fff; --text:#1d2330; --muted:#6b7280; --line:#e2e5ea; --accent:#2563eb; --danger:#dc2626; --ok:#15803d; }
     @media (prefers-color-scheme: dark) {
@@ -218,7 +218,7 @@ $shown = array_slice($docs, 0, 100);
 <body>
 <div class="wrap">
 
-    <h1>MiniNoSQL</h1>
+    <h1>noGhostSQL</h1>
     <div class="sub">Ukupno dokumenata: <strong><?= $total ?></strong></div>
 
     <?php if ($flash): ?>
@@ -250,7 +250,7 @@ $shown = array_slice($docs, 0, 100);
 
             <button type="submit"><?= $editDoc ? 'Sacuvaj izmene' : 'Dodaj dokument' ?></button>
             <?php if ($editId !== ''): ?>
-                <a class="btn btn-sec" href="index.php">Otkazi</a>
+                <a class="btn btn-sec" href="alfa-gui.php">Otkazi</a>
             <?php endif; ?>
         </form>
     </div>
@@ -260,7 +260,7 @@ $shown = array_slice($docs, 0, 100);
         <form method="get" class="row">
             <input type="text" name="q" value="<?= e($q) ?>" placeholder="Pretraga po pocetku ID-a (npr. ab3)" maxlength="8">
             <button type="submit">Trazi</button>
-            <a class="btn btn-sec" href="index.php">Resetuj</a>
+            <a class="btn btn-sec" href="alfa-gui.php">Resetuj</a>
         </form>
 
         <div class="buckets">
