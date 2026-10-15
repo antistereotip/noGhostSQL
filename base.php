@@ -1,6 +1,4 @@
-
-<pre>This is documentation file</pre>
-
+<pre>This is documentation file base.php</pre>
 
 <style>
     :root { --bg:#f5f6f8; --card:#fff; --text:#1d2330; --muted:#6b7280; --line:#e2e5ea; --accent:#2563eb; --danger:#dc2626; --ok:#15803d; }
@@ -64,6 +62,34 @@ About 2.82 trillion combinations.
 After the completed modification in the database, the result looks like this:
 </pre>
 </div>
+<pre>
+Simple function delete:<br>
+<code>// DELETE
+public function delete(string $id): bool
+{
+    if (!$this->isValidId($id)) {
+        return false;
+    }
+    $file = $this->getFile($id);
+    if (!file_exists($file)) {
+        return false;
+    }
+    return unlink($file);
+}</code>
+</pre>
+<pre>
+Method                      Intended use<br>
+insert($data)               Document entry
+find($id)                   Find by ID
+findBy($field, $value)      Search by field
+all()                       Load all documents
+update($id, $data)          Document modification
+delete($id)                 Delete a document
+count()                     Counting documents
+createIndex($field)         Create an index
+indexes()                   View indexes
+rebuildIndexes()            Rebuilding indexes
+</pre>
 <pre>
 <code>
 DEMO: created test document with ID sg9wpyfw
