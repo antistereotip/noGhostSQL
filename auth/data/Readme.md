@@ -1,0 +1,1 @@
+U auth folderu, pokrece se index i zahteva user i pass, nakon toga ubacuju se podaci, cim neki podatak legne sa pocetnim indexom f stvara se i folder f i tu taj podatak boravi. Ima 36 karaktera ukupno u data folderu.
