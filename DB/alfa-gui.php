@@ -1,5 +1,5 @@
 <?php
-die('up');
+die('up'); //uklonite ovaj red da bi skripta radila
 session_start();
 
 require __DIR__ . '/alfa-base.php';
