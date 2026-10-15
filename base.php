@@ -102,6 +102,15 @@ createIndex($field)         Create an index
 indexes()                   View indexes
 rebuildIndexes()            Rebuilding indexes
 </pre>
+
+<pre>
+Important: Use the same base directory in all scripts. 
+If one page opens new MiniNoSQL(__DIR__ . '/data') 
+and the other uses a different directory, 
+the pages will not work on the same data set.
+</pre>
+
+
 <pre>
 <code>
 DEMO: created test document with ID sg9wpyfw
