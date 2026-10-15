@@ -1,7 +1,7 @@
 # noGhostSQL
 ### Lightweight Database
-## https://github.com/antistereotip/nogGhostSQL/blob/main/base.php
-## https://usk.rs/RP/DB/base.php
+#### https://github.com/antistereotip/nogGhostSQL/blob/main/base.php
+#### https://usk.rs/RP/DB/base.php
 # Priprema se UI za konzolu
 ### Na pocetku svake radne skripte u php fajlu postoji ovo: die('up'); //odkomentovati da bi skripta radila
 ## Primer fajla sa komandama. Linije koje pocinju sa # su komentari.
