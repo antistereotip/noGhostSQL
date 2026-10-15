@@ -1,4 +1,8 @@
 <pre>
+<h3>Welcome to Future. The noGhostSQL is highly scaled open source no DB Database.</h3>
+</pre>
+
+<pre>
 This is the noGhostSQL (base.php) database documentation. It is a non-relational database. 
 The database simply indexes the data and places it in the /data folder as .json files. 
 We are currently working on optimizing the engine itself. Stay tuned.
@@ -54,7 +58,7 @@ them from the database after use or protect them with a password so that only yo
 <pre>
 No SQL Database - No SQL Baza, 
 Name: noGhostSQL, Engine language: PHP
-https://github.com/antistereotip/noGhostSQL
+<a href="https://github.com/antistereotip/noGhostSQL">https://github.com/antistereotip/noGhostSQL</a>
 9 Files
 1 folder - /data
 Everything on repo is open source, free to use, modify and redistribute.
