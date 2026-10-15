@@ -1,0 +1,11 @@
+{
+    "_id": "ycf40wyb",
+    "data": {
+        "ime": "Marko",
+        "godine": 26,
+        "grad": "Novi Sad",
+        "email": "marko@primer.rs"
+    },
+    "_created": "2026-10-15 14:10:50",
+    "_updated": "2026-10-15 14:10:50"
+}

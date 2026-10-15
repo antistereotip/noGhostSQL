@@ -1,0 +1,11 @@
+{
+    "_id": "wcgtg3in",
+    "data": {
+        "ime": "Marko",
+        "godine": 26,
+        "grad": "Novi Sad",
+        "email": "marko@primer.rs"
+    },
+    "_created": "2026-10-15 14:04:33",
+    "_updated": "2026-10-15 14:04:33"
+}

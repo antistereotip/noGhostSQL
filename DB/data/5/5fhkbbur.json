@@ -1,0 +1,11 @@
+{
+    "_id": "5fhkbbur",
+    "data": {
+        "ime": "Marko",
+        "godine": 26,
+        "grad": "Novi Sad",
+        "email": "marko@primer.rs"
+    },
+    "_created": "2026-10-15 14:10:49",
+    "_updated": "2026-10-15 14:10:49"
+}
