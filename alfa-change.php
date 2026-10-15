@@ -14,7 +14,7 @@
  * KORISCENJE (browser):
  *   izmena.php?id=k3x9m2pa&set[]=grad=Novi Sad&set[]=godine=26&set[]=-telefon
  */
-
+die('up'); //odkomentovati da bi skripta radila
 require __DIR__ . '/alfa-base.php';
 
 $db = new MiniNoSQL(__DIR__ . '/data');
