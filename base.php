@@ -1,3 +1,7 @@
+
+<pre>This is documentation file</pre>
+
+
 <style>
     :root { --bg:#f5f6f8; --card:#fff; --text:#1d2330; --muted:#6b7280; --line:#e2e5ea; --accent:#2563eb; --danger:#dc2626; --ok:#15803d; }
     @media (prefers-color-scheme: dark) {
