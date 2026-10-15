@@ -1,3 +1,3 @@
 # noGhostSQL
-Lightweight Database
-https://github.com/antistereotip/nogGhostSQL/blob/main/base.php
+### Lightweight Database
+## https://github.com/antistereotip/nogGhostSQL/blob/main/base.php
