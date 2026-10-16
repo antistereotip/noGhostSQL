@@ -1,0 +1,15 @@
+{
+    "_id": "phcp1t2l",
+    "data": {
+        "ime": "Milutin",
+        "prezime": "Gavrilovic",
+        "mesto": "Beograd",
+        "godiste": 1982,
+        "mail": "milutingavrilovic [at] icloud [dot] com",
+        "delatnost": "IT Master",
+        "opseg": "noSQL baza"
+    },
+    "_created": "2026-10-16 04:18:59",
+    "_image": "phcp1t2l_918fc766.png",
+    "_updated": "2026-10-16 04:18:59"
+}

@@ -21,6 +21,48 @@ function redirect(string $url = 'index.php'): void
     exit;
 }
 
+/*
+ * Povratak na istu stranu liste posle akcije (samo poznati parametri)
+ */
+function safeBack(string $qs): string
+{
+    parse_str($qs, $in);
+    $out = [];
+
+    foreach (['q', 'bucket', 'color', 'sort', 'mode', 'p'] as $k) {
+        if (isset($in[$k]) && is_string($in[$k]) && $in[$k] !== '') {
+            $out[$k] = $in[$k];
+        }
+    }
+
+    return 'index.php' . ($out ? '?' . http_build_query($out) : '');
+}
+
+/*
+ * Tekst iz svih vrednosti dokumenta (za pretragu po sadrzaju)
+ */
+function docText(array $data): string
+{
+    $parts = [];
+
+    array_walk_recursive($data, function ($v) use (&$parts) {
+        if (is_bool($v)) {
+            $parts[] = $v ? 'true' : 'false';
+        } elseif ($v !== null) {
+            $parts[] = (string) $v;
+        }
+    });
+
+    return implode(' ', $parts);
+}
+
+function containsText(string $haystack, string $needle): bool
+{
+    return function_exists('mb_stripos')
+        ? mb_stripos($haystack, $needle) !== false
+        : stripos($haystack, $needle) !== false;
+}
+
 function flash(string $type, string $msg): void
 {
     $_SESSION['flash'] = ['type' => $type, 'msg' => $msg];
@@ -162,6 +204,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 flash('err', "Dokument $id nije pronadjen.");
             }
 
+        } elseif ($action === 'duplicate') {
+            $id = (string) ($_POST['id'] ?? '');
+            $src = $db->find($id);
+
+            if ($src === null) {
+                flash('err', "Dokument $id nije pronadjen.");
+            } else {
+                $copyData = is_array($src['data'] ?? null) ? $src['data'] : [];
+                $newId = $db->insert($copyData);
+                $note = '';
+                $img = $db->getImage($id);
+
+                if ($img !== null) {
+                    try {
+                        $db->setImage($newId, $img['path']);
+                    } catch (Throwable $ex) {
+                        $note = ' (slika nije kopirana: ' . $ex->getMessage() . ')';
+                    }
+                }
+
+                flash('ok', "Napravljen duplikat dokumenta $id. Novi ID: $newId. Izmeni ga ispod.$note");
+                redirect('index.php?edit=' . urlencode($newId));
+            }
+
         } elseif ($action === 'delete') {
             $id = (string) ($_POST['id'] ?? '');
 
@@ -175,7 +241,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         flash('err', 'Greska: ' . $ex->getMessage());
     }
 
-    redirect();
+    redirect(safeBack((string) ($_POST['back'] ?? '')));
 }
 
 /*
@@ -188,23 +254,99 @@ $editId = isset($_GET['edit']) ? (string) $_GET['edit'] : '';
 $editDoc = $editId !== '' ? $db->find($editId) : null;
 
 $bucket = strtolower((string) ($_GET['bucket'] ?? ''));
-$q = strtolower(trim((string) ($_GET['q'] ?? '')));
+$q = trim((string) ($_GET['q'] ?? ''));
 $color = strtolower((string) ($_GET['color'] ?? ''));
+$sort = ($_GET['sort'] ?? 'new') === 'old' ? 'old' : 'new';
+$mode = ($_GET['mode'] ?? 'cards') === 'ids' ? 'ids' : 'cards';   // cards = kartice, ids = lista ID-jeva
 
-if ($q !== '') {
-    $docs = $db->findByPrefix($q);
-} elseif ($bucket !== '') {
+if ($bucket !== '' && !(strlen($bucket) === 1 && ctype_alnum($bucket))) {
+    $bucket = '';
+}
+
+if ($color !== '' && !in_array($color, $db->colors(), true)) {
+    $color = '';
+}
+
+if ($bucket !== '') {
+    $color = '';
     $docs = $db->allByBucket($bucket);
-} elseif ($color !== '' && in_array($color, $db->colors(), true)) {
+} elseif ($color !== '') {
     $docs = $db->allByColor($color);
 } else {
     $docs = $db->all();
 }
 
-usort($docs, fn($a, $b) => strcmp($b['_created'] ?? '', $a['_created'] ?? ''));
+// pretraga: pocetak ID-a ILI bilo koja vrednost u dokumentu (filteri se kombinuju)
+if ($q !== '') {
+    $idNeedle = strtolower($q);
+
+    $docs = array_values(array_filter($docs, function ($d) use ($q, $idNeedle) {
+        return strpos((string) ($d['_id'] ?? ''), $idNeedle) === 0
+            || containsText(docText((array) ($d['data'] ?? [])), $q);
+    }));
+}
+
+usort($docs, fn($a, $b) => $sort === 'old'
+    ? strcmp($a['_created'] ?? '', $b['_created'] ?? '')
+    : strcmp($b['_created'] ?? '', $a['_created'] ?? ''));
 
 $total = $db->count();
-$shown = array_slice($docs, 0, 100);
+
+/*
+ * PAGINACIJA (11 dokumenata po strani)
+ */
+$perPage = 11;
+$totalDocs = count($docs);
+$pages = max(1, (int) ceil($totalDocs / $perPage));
+$page = min(max(1, (int) ($_GET['p'] ?? 1)), $pages);
+$shown = array_slice($docs, ($page - 1) * $perPage, $perPage);
+$from = $totalDocs ? ($page - 1) * $perPage + 1 : 0;
+$to = ($page - 1) * $perPage + count($shown);
+$allIds = array_slice(array_map(fn($d) => (string) ($d['_id'] ?? ''), $docs), 0, 5000);
+$backQs = (string) parse_url(buildUrl(), PHP_URL_QUERY);   // trenutni filteri, za povratak posle akcije
+
+// pravi link sa trenutnim filterima; $over menja pojedine parametre ('' ih uklanja)
+function buildUrl(array $over = []): string
+{
+    global $q, $bucket, $color, $sort, $mode, $page;
+
+    $params = array_merge(
+        ['q' => $q, 'bucket' => $bucket, 'color' => $color, 'sort' => $sort, 'mode' => $mode, 'p' => $page],
+        $over
+    );
+
+    if (($params['mode'] ?? '') === 'cards') {
+        unset($params['mode']);
+    }
+
+    if (($params['sort'] ?? '') === 'new') {
+        unset($params['sort']);
+    }
+
+    if ((int) ($params['p'] ?? 1) <= 1) {
+        unset($params['p']);
+    }
+
+    $params = array_filter($params, fn($v) => $v !== '' && $v !== null);
+
+    return 'index.php' . ($params ? '?' . http_build_query($params) : '');
+}
+
+// brojevi strana: 1 ... 4 5 [6] 7 8 ... 20
+function pageList(int $page, int $pages): array
+{
+    $list = [];
+
+    for ($i = 1; $i <= $pages; $i++) {
+        if ($i === 1 || $i === $pages || abs($i - $page) <= 2) {
+            $list[] = $i;
+        } elseif (end($list) !== '...') {
+            $list[] = '...';
+        }
+    }
+
+    return $list;
+}
 
 ?>
 <!DOCTYPE html>
@@ -251,6 +393,23 @@ $shown = array_slice($docs, 0, 100);
     .colors a { padding: 4px 12px; border-radius: 999px; border:2px solid var(--c); color:var(--c); text-decoration:none; font-size: 13px; font-weight: 600; }
     .colors a.on { background: var(--c); color:#fff; }
     .dot { display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--c); margin-right:6px; }
+    .seg { display:inline-flex; border:1px solid var(--line); border-radius:6px; overflow:hidden; }
+    .seg a { padding:5px 12px; font-size:13px; color:var(--text); text-decoration:none; }
+    .seg a.on { background: var(--accent); color:#fff; }
+    .idrow { border-top:1px solid var(--line); }
+    .idrow:first-child { border-top:0; }
+    .idrow summary { list-style:none; cursor:pointer; padding:10px 4px; display:flex; flex-wrap:wrap; gap:4px 10px; align-items:center; }
+    .idrow summary::-webkit-details-marker { display:none; }
+    .idrow summary::before { content:'\25B8'; color:var(--muted); width:14px; }
+    .idrow[open] > summary::before { content:'\25BE'; }
+    .idrow summary:hover { background: var(--bg); }
+    .idrow .preview { flex:1 1 160px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .idbody { padding:0 4px 14px 24px; }
+    .pager { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-top:16px; padding-top:14px; border-top:1px solid var(--line); }
+    .pager a, .pager span { padding: 5px 11px; border:1px solid var(--line); border-radius:6px; font-size:14px; text-decoration:none; color:var(--text); }
+    .pager a.on { background: var(--accent); border-color: var(--accent); color:#fff; }
+    .pager .off { opacity:.4; }
+    .pager .gap { border-color: transparent; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -288,6 +447,7 @@ $shown = array_slice($docs, 0, 100);
             <input type="hidden" name="action" value="<?= $editDoc ? 'update' : 'insert' ?>">
             <?php if ($editDoc): ?>
                 <input type="hidden" name="id" value="<?= e($editId) ?>">
+                <input type="hidden" name="back" value="<?= e($backQs) ?>">
             <?php endif; ?>
 
             <textarea name="content" placeholder="ime: Marko&#10;godine: 25&#10;grad: Beograd"><?=
@@ -306,7 +466,7 @@ $shown = array_slice($docs, 0, 100);
 
             <button type="submit"><?= $editDoc ? 'Sacuvaj izmene' : 'Dodaj dokument' ?></button>
             <?php if ($editId !== ''): ?>
-                <a class="btn btn-sec" href="index.php">Otkazi</a>
+                <a class="btn btn-sec" href="<?= e(buildUrl()) ?>">Otkazi</a>
             <?php endif; ?>
         </form>
     </div>
@@ -314,14 +474,20 @@ $shown = array_slice($docs, 0, 100);
     <!-- PRETRAGA / FILTER PO 36 BUCKET-A -->
     <div class="card">
         <form method="get" class="row">
-            <input type="text" name="q" value="<?= e($q) ?>" placeholder="Pretraga po pocetku ID-a (npr. ab3)" maxlength="8">
+            <?php if ($bucket !== ''): ?><input type="hidden" name="bucket" value="<?= e($bucket) ?>"><?php endif; ?>
+            <?php if ($color !== ''): ?><input type="hidden" name="color" value="<?= e($color) ?>"><?php endif; ?>
+            <input type="text" name="q" value="<?= e($q) ?>" placeholder="Pretraga po sadrzaju ili pocetku ID-a (npr. Marko)">
+            <select name="sort" onchange="this.form.submit()" title="Redosled" style="flex:0 1 170px">
+                <option value="new" <?= $sort === 'new' ? 'selected' : '' ?>>Najnoviji prvo</option>
+                <option value="old" <?= $sort === 'old' ? 'selected' : '' ?>>Najstariji prvo</option>
+            </select>
             <button type="submit">Trazi</button>
             <a class="btn btn-sec" href="index.php">Resetuj</a>
         </form>
 
         <div class="colors">
             <?php foreach ($db->statsByColor() as $name => $info): ?>
-                <a href="?color=<?= e($name) ?>"
+                <a href="<?= e(buildUrl(['color' => $color === $name ? '' : $name, 'bucket' => '', 'p' => 1])) ?>"
                    style="--c: <?= e($name) ?>"
                    class="<?= $color === $name ? 'on' : '' ?>"
                    title="<?= e(implode(' ', $info['chars'])) ?>"><?= e($name) ?> (<?= $info['count'] ?>)</a>
@@ -330,7 +496,7 @@ $shown = array_slice($docs, 0, 100);
 
         <div class="buckets">
             <?php foreach ($db->stats() as $char => $n): ?>
-                <a href="?bucket=<?= e($char) ?>"
+                <a href="<?= e(buildUrl(['bucket' => $bucket === (string) $char ? '' : (string) $char, 'color' => '', 'p' => 1])) ?>"
                    style="--c: <?= e($db->colorOf((string) $char)) ?>"
                    class="<?= $bucket === (string) $char ? 'on' : '' ?> <?= $n === 0 ? 'empty' : '' ?>"
                    title="<?= $n ?> dokumenata"><?= e($char) ?> <small><?= $n ?></small></a>
@@ -340,15 +506,30 @@ $shown = array_slice($docs, 0, 100);
 
     <!-- LISTA DOKUMENATA -->
     <div class="card">
-        <h3 style="margin-top:0">
-            Dokumenti
-            <span class="meta">(prikazano <?= count($shown) ?> od <?= count($docs) ?>)</span>
-        </h3>
+        <div class="row" style="justify-content:space-between; margin-bottom:10px">
+            <h3 style="margin:0; flex:1 1 auto">
+                Dokumenti
+                <span class="meta">(<?= $from ?>-<?= $to ?> od <?= $totalDocs ?>)</span>
+            </h3>
+            <div class="seg" style="flex:0 0 auto">
+                <a href="<?= e(buildUrl(['mode' => 'cards', 'p' => 1])) ?>" class="<?= $mode === 'cards' ? 'on' : '' ?>">Kartice</a>
+                <a href="<?= e(buildUrl(['mode' => 'ids', 'p' => 1])) ?>" class="<?= $mode === 'ids' ? 'on' : '' ?>">Lista ID-jeva</a>
+            </div>
+        </div>
 
-        <?php if (!$shown): ?>
-            <div class="meta">Nema dokumenata.</div>
+        <?php if ($mode === 'ids' && $shown): ?>
+            <div class="row" style="margin-bottom:6px">
+                <button type="button" class="btn-sec btn-sm" data-toggle-all="open">Otvori sve</button>
+                <button type="button" class="btn-sec btn-sm" data-toggle-all="close">Zatvori sve</button>
+                <button type="button" class="btn-sec btn-sm" data-copy="<?= e(implode("\n", $allIds)) ?>">Kopiraj sve ID-jeve (<?= count($allIds) ?>)</button>
+            </div>
         <?php endif; ?>
 
+        <?php if (!$shown): ?>
+            <div class="meta"><?= ($q !== '' || $bucket !== '' || $color !== '') ? 'Nema rezultata za zadate filtere.' : 'Nema dokumenata.' ?></div>
+        <?php endif; ?>
+
+        <?php if ($mode === 'cards'): ?>
         <?php foreach ($shown as $doc): ?>
             <div class="doc">
                 <div class="row" style="justify-content:space-between">
@@ -362,11 +543,19 @@ $shown = array_slice($docs, 0, 100);
                         </span>
                     </div>
                     <div style="flex:0 0 auto">
-                        <a class="btn btn-sec btn-sm" href="?edit=<?= e(urlencode($doc['_id'] ?? '')) ?>">Izmeni</a>
+                        <button type="button" class="btn-sec btn-sm" data-copy="<?= e($doc['_id'] ?? '') ?>">Kopiraj ID</button>
+                        <a class="btn btn-sec btn-sm" href="<?= e(buildUrl(['edit' => (string) ($doc['_id'] ?? '')])) ?>">Izmeni</a>
+                        <form method="post" class="inline">
+                            <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
+                            <input type="hidden" name="action" value="duplicate">
+                            <input type="hidden" name="id" value="<?= e($doc['_id'] ?? '') ?>">
+                            <button type="submit" class="btn-sec btn-sm">Dupliraj</button>
+                        </form>
                         <form method="post" class="inline" onsubmit="return confirm('Obrisati dokument?');">
                             <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="id" value="<?= e($doc['_id'] ?? '') ?>">
+                            <input type="hidden" name="back" value="<?= e($backQs) ?>">
                             <button type="submit" class="btn-danger btn-sm">Obrisi</button>
                         </form>
                     </div>
@@ -377,8 +566,121 @@ $shown = array_slice($docs, 0, 100);
                 <pre><?= e(json_encode($doc['data'] ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) ?></pre>
             </div>
         <?php endforeach; ?>
+
+        <?php else: ?>
+        <!-- LISTA ID-JEVA: klik na ID otvara sve podatke -->
+        <div class="idlist">
+            <?php foreach ($shown as $doc): ?>
+                <?php
+                    $did = (string) ($doc['_id'] ?? '');
+                    $pv = docText((array) ($doc['data'] ?? []));
+                    $pv = function_exists('mb_strimwidth') ? mb_strimwidth($pv, 0, 70, '...') : substr($pv, 0, 70);
+                ?>
+                <details class="idrow">
+                    <summary>
+                        <span class="id" style="--c: <?= e($db->colorOfId($did) ?? 'gray') ?>"><span class="dot"></span><?= e($did) ?></span>
+                        <?php if (!empty($doc['_image'])): ?><span class="meta">[slika]</span><?php endif; ?>
+                        <span class="meta preview"><?= e($pv) ?></span>
+                    </summary>
+
+                    <div class="idbody">
+                        <div class="meta" style="margin-bottom:6px">
+                            kreiran <?= e($doc['_created'] ?? '-') ?>
+                            <?php if (!empty($doc['_updated'])): ?>
+                                &middot; izmenjen <?= e($doc['_updated']) ?>
+                            <?php endif; ?>
+                        </div>
+
+                        <?php if (!empty($doc['_image'])): ?>
+                            <img src="image.php?id=<?= e(urlencode($did)) ?>" alt="" loading="lazy" style="max-height:160px; max-width:100%; border-radius:6px; margin-bottom:6px">
+                        <?php endif; ?>
+
+                        <pre><?= e(json_encode($doc['data'] ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) ?></pre>
+
+                        <div>
+                            <button type="button" class="btn-sec btn-sm" data-copy="<?= e($did) ?>">Kopiraj ID</button>
+                            <a class="btn btn-sec btn-sm" href="<?= e(buildUrl(['edit' => $did])) ?>">Izmeni</a>
+                            <form method="post" class="inline">
+                                <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
+                                <input type="hidden" name="action" value="duplicate">
+                                <input type="hidden" name="id" value="<?= e($did) ?>">
+                                <button type="submit" class="btn-sec btn-sm">Dupliraj</button>
+                            </form>
+                            <form method="post" class="inline" onsubmit="return confirm('Obrisati dokument?');">
+                                <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="id" value="<?= e($did) ?>">
+                                <input type="hidden" name="back" value="<?= e($backQs) ?>">
+                                <button type="submit" class="btn-danger btn-sm">Obrisi</button>
+                            </form>
+                        </div>
+                    </div>
+                </details>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+
+        <?php if ($pages > 1): ?>
+            <nav class="pager">
+                <?php if ($page > 1): ?>
+                    <a href="<?= e(buildUrl(['p' => $page - 1])) ?>">&laquo; Prethodna</a>
+                <?php else: ?>
+                    <span class="off">&laquo; Prethodna</span>
+                <?php endif; ?>
+
+                <?php foreach (pageList($page, $pages) as $n): ?>
+                    <?php if ($n === '...'): ?>
+                        <span class="gap">&hellip;</span>
+                    <?php else: ?>
+                        <a href="<?= e(buildUrl(['p' => $n])) ?>" class="<?= $n === $page ? 'on' : '' ?>"><?= $n ?></a>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+
+                <?php if ($page < $pages): ?>
+                    <a href="<?= e(buildUrl(['p' => $page + 1])) ?>">Sledeca &raquo;</a>
+                <?php else: ?>
+                    <span class="off">Sledeca &raquo;</span>
+                <?php endif; ?>
+            </nav>
+        <?php endif; ?>
     </div>
 
 </div>
+<script>
+// "Kopiraj ID" dugme
+document.addEventListener('click', function (ev) {
+    var btn = ev.target.closest('[data-copy]');
+    if (!btn) return;
+
+    var text = btn.getAttribute('data-copy');
+    var done = function () {
+        var old = btn.textContent;
+        btn.textContent = 'Kopirano!';
+        setTimeout(function () { btn.textContent = old; }, 1500);
+    };
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(done);
+    } else {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); done(); } catch (e) {}
+        document.body.removeChild(ta);
+    }
+});
+
+// "Otvori sve" / "Zatvori sve" u listi ID-jeva
+document.addEventListener('click', function (ev) {
+    var t = ev.target.closest('[data-toggle-all]');
+    if (!t) return;
+
+    var open = t.getAttribute('data-toggle-all') === 'open';
+    document.querySelectorAll('details.idrow').forEach(function (d) { d.open = open; });
+});
+</script>
 </body>
 </html>

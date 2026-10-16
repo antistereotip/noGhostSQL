@@ -1,0 +1,15 @@
+{
+    "_id": "lx4d2exk",
+    "data": {
+        "ime": "Milos",
+        "prezime": "Gavrilovic",
+        "mesto": "Beograd",
+        "godiste": 1983,
+        "telefon": "0604455083",
+        "delatnost": "Maestro",
+        "opseg": "noSQL baza"
+    },
+    "_created": "2026-10-16 03:32:38",
+    "_image": "lx4d2exk_3fdede9c.png",
+    "_updated": "2026-10-16 03:32:38"
+}

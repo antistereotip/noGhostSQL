@@ -1,0 +1,16 @@
+{
+    "_id": "wjhgvwbj",
+    "data": {
+        "ime": "Jelena",
+        "prezime": "Senic",
+        "mesto": "Beograd",
+        "godiste": 1980,
+        "mail": "jloxelena [at] gmail [dot] com",
+        "telefon": "0653160639",
+        "delatnost": "E distribucija",
+        "opseg": "noSQL baza"
+    },
+    "_created": "2026-10-16 04:49:20",
+    "_updated": "2026-10-16 04:58:25",
+    "_image": "wjhgvwbj_caf7fc1e.jpg"
+}

@@ -1,0 +1,15 @@
+{
+    "_id": "tjal2c2v",
+    "data": {
+        "ime": "Milutin",
+        "prezime": "Gavrilovic",
+        "godiste": 1982,
+        "mesto": "Beograd",
+        "titula": "FederMarsal",
+        "delatnost": "IT tech",
+        "opseg": "noSQL baza"
+    },
+    "_created": "2026-10-16 02:49:12",
+    "_image": "tjal2c2v_31dd9577.png",
+    "_updated": "2026-10-16 02:49:12"
+}

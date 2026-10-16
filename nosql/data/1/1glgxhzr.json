@@ -1,0 +1,15 @@
+{
+    "_id": "1glgxhzr",
+    "data": {
+        "ime": "Milutin",
+        "prezime": "Gavrilovic",
+        "mesto": "Beograd",
+        "godiste": 1982,
+        "mail": "milutingavrilovic [at] yahoo [dot] com",
+        "delatnost": "IT Entuzijasta",
+        "opseg": "noSQL baza"
+    },
+    "_created": "2026-10-16 03:25:40",
+    "_updated": "2026-10-16 03:26:11",
+    "_image": "1glgxhzr_16f8c4f6.png"
+}

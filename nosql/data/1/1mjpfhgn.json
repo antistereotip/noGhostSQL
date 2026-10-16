@@ -1,0 +1,15 @@
+{
+    "_id": "1mjpfhgn",
+    "data": {
+        "ime": "Milutin",
+        "prezime": "Gavrilovic",
+        "mesto": "Beograd",
+        "godiste": 1980,
+        "telefon": "0659606088",
+        "delatnost": "Blejanje na groblju",
+        "opseg": "noSQL baza"
+    },
+    "_created": "2026-10-16 05:01:09",
+    "_image": "1mjpfhgn_310b094e.jpg",
+    "_updated": "2026-10-16 05:01:09"
+}

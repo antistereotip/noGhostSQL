@@ -1,0 +1,15 @@
+{
+    "_id": "qdmh6ndc",
+    "data": {
+        "ime": "Goran",
+        "prezime": "Zarubica",
+        "mesto": "Beograd",
+        "godiste": 1961,
+        "mail": "goran.zarubica [at] isb [dot] rs",
+        "delatnost": "Sec Department and Facility",
+        "opseg": "noSQL baza"
+    },
+    "_created": "2026-10-16 04:37:54",
+    "_updated": "2026-10-16 04:38:12",
+    "_image": "qdmh6ndc_249e6a59.png"
+}

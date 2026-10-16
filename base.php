@@ -39,7 +39,9 @@
 
 
 <div>
-
+<pre>
+<a href="https://usk.rs/old-index.html" style="text-deocration: none; color: royalblue;">Vrati se na Početnu Strana, Folder DB je Redirektovan</a>
+</pre>
 
 <pre>
 <h2>Welcome to Future. The noGhostSQL is highly scaled open source No SQL Database.</h2>
@@ -56,15 +58,48 @@ a password so that only you can access them.
 </pre>
 
 <pre>
+Welcome to the most powerful database ever devised. Engine, like MVP, is written in PHP, which 
+I intend to later change to ANSI C. With this database, you can be very satisfied with how 
+quickly it collects data and how it manipulates it.
+</pre>
+
+<pre>
+No matter how much data there is in one ID, it does not change the structure, but it can increase 
+the size. For example, there are ten json entries in one id, and five json entries in the other. 
+However, the database is as big as it can have IDs. This base indexing with 36 characters has a 
+total of index combinations (IDs): 36⁸ = 2,821,109,907,456. That means almost three trillion, 
+which gives it the ability to address the entire planet and orbit and to have another two 
+trillion left ...
+</pre>
+
+<pre>
 No SQL Database - No SQL Baza, 
 Name: noGhostSQL, Engine language: PHP
-<a href="https://github.com/antistereotip/noGhostSQL">https://github.com/antistereotip/noGhostSQL</a>
-9 Files
-1 folder - /data
+
+<h3>Github Repo</h3>
+<a href="https://github.com/antistereotip/noGhostSQL">https://github.com/antistereotip/noGhostSQL</a><br>
+12 Files
+3 folders - /data
 Everything on repo is open source, free to use, 
-modify and redistribute under MIT License.
+modify and redistribute under MIT License.<br>
 KISS (Keep It Simple Stupid).
 </pre>
+
+<pre>
+<a href="https://usk.rs/RP/" style="text-deocration: none; color: royalblue;">Retro Port</a>
+<a href="https://usk.rs/RP/0/?akcija=" style="text-deocration: none; color: royalblue;">Unesi Komandu</a>
+<a href="https://usk.rs/bbsx/" style="text-deocration: none; color: royalblue;">Evo Malo Ezoterije</a>
+<a href="#" style="text-deocration: none; color: royalblue;">Dalje nećes proći ...</a>
+</pre>
+
+<pre>
+For premium users: <a href="https://usk.rs/RP/DB/nosql/">https://usk.rs/RP/DB/nosql/</a>. After purchasing a package of our services, you get one 
+hash file that you run inside the auth.php folder and generate a password that you insert into auth.php 
+and then everything is ready to log in with the desired password. You have many new features in the GUI 
+and you can literally manipulate any data just by handling it within the graphical environment, and you 
+also have a console, console.php, through which you can use commands to manipulate data.
+</pre>
+
 
 <pre>
 The total number of possible IDs is 36 characters
@@ -131,7 +166,6 @@ will not work on the same data set.
 After the completed modification in the database, the result looks like this:
 </pre>
 
-
 <pre>
 <code>
 DEMO: created test document with ID sg9wpyfw
@@ -183,7 +217,6 @@ has 9 half octets, Nine nibbles. A huge number of entries are allowed. This
 is the base for huge projects that need clear base logic and need speed. It 
 will look like this in the GUI:
 </pre>
-
 
 <div class="buckets">
     <a href="?bucket=a" style="--c: orangered" class=" " title="1 dokumenata">a <small>1</small></a>
@@ -281,12 +314,12 @@ to employ their developers to help on this githib repository so that the first b
 usk.rs sees the light of day. The advantage of these databases is double indexing and direct 
 work with data with only one function. You have everything on Github so see how the noSQL 
 database is used.
-</pre>
+</pre><br>
 
 <pre>
-Simple like this (Interface is on Serbian), this is <b style="color: red;">beta-gui</b> example.<br>
-<img src="https://usk.rs/RP/DB/capture.png" alt="noGhostSQL" width="33%" style="border: 1px solid #999; border-radius: 22px; padding: 4px;">
-</pre>
+Simple like this (Interface is on Serbian), this is <b style="color: red;">beta-gui</b> example.<br><br>
+<img src="https://usk.rs/RP/DB/capture.png" alt="noGhostSQL" width="33%" style="border: 1px solid #999; border-radius: 14px; padding: 4px;">
+</pre><br>
 
 <pre>
 Do you see <b style="color: red;">eg8mdjh7</b>, it is an index from the database, and there are 36⁸ = 2,821,109,907,456 
@@ -301,13 +334,13 @@ you. Edit cannot with three parameters in the .json data to edit the fourth one,
 one. They can only register in the database parameters are added. And then how many parameters 
 are entered in one data so much later can be edited. We can make the data editable from three 
 to four parameters, but then the index loses its trillion enrollment figure.
-</pre>
+</pre><br>
 
 
 <pre>
-This is the noGhostSQL <b style="color: red;">alfa-gui</b> example, You can insert any numbers parametars in .json file.<br>
-<img src="https://usk.rs/RP/DB/capture1.png" alt="noGhostSQL" width="33%" style="border: 1px solid #999; border-radius: 22px; padding: 4px;">
-</pre>
+This is the noGhostSQL <b style="color: red;">alfa-gui</b> example, You can insert any numbers parametars in .json file.<br><br>
+<img src="https://usk.rs/RP/DB/capture1.png" alt="noGhostSQL" width="33%" style="border: 1px solid #999; border-radius: 14px; padding: 4px;">
+</pre><br>
 
 
 <pre>
@@ -318,9 +351,17 @@ it. Almost three trillion combinations with our character set. Along with the ra
 addresses, we also guarantee the speed of data handling. You can use alfa-gui.php and 
 beta-gui.php, all you have to do is authenticate that there is a password, so that not 
 everyone can manage your data. In our case, Auth is available in the paid version. You 
-can use it in the local database, then just copy via ftp data to the main server.
-</pre>
+can use it in the local database, then just copy via ftp data to the main server. I also 
+added the option of uploading the image and placing it in the _files folder, but combined 
+with the indexed data. It's a lot of fun when you know you can add more hypertext.
+</pre><br>
 
+
+<pre>
+This is the noGhostSQL <b style="color: red;">beta-gui</b> example, You can insert any numbers parametars in .json file
+Now you can put image. For video we will take some more time to do.<br><br>
+<img src="https://usk.rs/RP/DB/capture3.png" alt="noGhostSQL" width="33%" style="border: 1px solid #999; border-radius: 14px; padding: 4px;">
+</pre><br>
 
 
 

@@ -1,5 +1,5 @@
 <?php
-
+die("Silence is golden.");
 require __DIR__ . '/auth.php';
 auth_require();   // bez prijave se ne ide dalje
 
@@ -184,7 +184,7 @@ $shown = array_slice($docs, 0, 100);
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>MiniNoSQL</title>
+<title>noGhostSQL</title>
 <style>
     :root { --bg:#f5f6f8; --card:#fff; --text:#1d2330; --muted:#6b7280; --line:#e2e5ea; --accent:#2563eb; --danger:#dc2626; --ok:#15803d; }
     @media (prefers-color-scheme: dark) {
@@ -229,7 +229,7 @@ $shown = array_slice($docs, 0, 100);
 
     <div class="row" style="justify-content:space-between">
         <div style="flex:1 1 auto">
-            <h1>MiniNoSQL</h1>
+            <h1>noGhostSQL</h1>
             <div class="sub">Ukupno dokumenata: <strong><?= $total ?></strong></div>
         </div>
         <form method="post" style="flex:0 0 auto">

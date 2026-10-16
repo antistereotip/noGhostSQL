@@ -1,0 +1,14 @@
+{
+    "_id": "yw1j5t5t",
+    "data": {
+        "ime": "Klinac",
+        "mesto": "Beograd",
+        "godiste": 1982,
+        "telefon": "0649606088",
+        "delatnost": "High Tech",
+        "opseg": "noSQL baza"
+    },
+    "_created": "2026-10-16 04:58:09",
+    "_updated": "2026-10-16 05:02:33",
+    "_image": "yw1j5t5t_514ba6fd.jpg"
+}

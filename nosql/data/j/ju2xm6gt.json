@@ -1,0 +1,15 @@
+{
+    "_id": "ju2xm6gt",
+    "data": {
+        "ime": "Milutin",
+        "prezime": "Gavrilovic",
+        "mesto": "Beograd",
+        "godiste": 1982,
+        "telefon": "0649606088",
+        "delatnost": "IT Hijacking",
+        "opseg": "noSQL baza"
+    },
+    "_created": "2026-10-16 04:47:16",
+    "_image": "ju2xm6gt_979999b9.jpg",
+    "_updated": "2026-10-16 04:47:16"
+}

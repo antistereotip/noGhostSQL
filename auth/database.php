@@ -291,6 +291,10 @@ class MiniNoSQL
             '_updated' => date('Y-m-d H:i:s')
         ];
 
+        if (!empty($old['_image'])) {
+            $document['_image'] = $old['_image'];
+        }
+
         return $this->writeDocument($this->getFile($id), $document);
     }
 
@@ -309,7 +313,130 @@ class MiniNoSQL
             return false;
         }
 
+        $this->removeImage($id);
+
         return unlink($file);
+    }
+
+    /*
+     * SLIKE
+     * Slika se cuva kao fajl u data/_files/, a u dokumentu ostaje samo njeno ime ("_image").
+     */
+    private function imageDir(): string
+    {
+        return $this->path . '/_files';
+    }
+
+    private function isValidImageName(string $name): bool
+    {
+        return (bool) preg_match(
+            '/^[a-z0-9]{' . $this->idLength . '}_[a-f0-9]{8}\.(jpg|png|gif|webp)$/',
+            $name
+        );
+    }
+
+    /*
+     * Dodaje (ili zamenjuje) sliku dokumenta. Baca Exception ako nesto nije u redu.
+     */
+    public function setImage(string $id, string $tmpFile, int $maxBytes = 5242880): string
+    {
+        $doc = $this->find($id);
+
+        if ($doc === null) {
+            throw new Exception('Dokument ne postoji.');
+        }
+
+        if (!is_file($tmpFile)) {
+            throw new Exception('Fajl slike nije pronadjen.');
+        }
+
+        if (filesize($tmpFile) > $maxBytes) {
+            throw new Exception('Slika je veca od ' . round($maxBytes / 1048576) . ' MB.');
+        }
+
+        // Tip se odredjuje po SADRZAJU fajla, ne po nazivu
+        $info = @getimagesize($tmpFile);
+
+        $types = [
+            IMAGETYPE_JPEG => 'jpg',
+            IMAGETYPE_PNG  => 'png',
+            IMAGETYPE_GIF  => 'gif',
+            IMAGETYPE_WEBP => 'webp',
+        ];
+
+        if ($info === false || !isset($types[$info[2]])) {
+            throw new Exception('Dozvoljeni formati: JPG, PNG, GIF, WEBP.');
+        }
+
+        $dir = $this->imageDir();
+
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
+
+        $name = $id . '_' . bin2hex(random_bytes(4)) . '.' . $types[$info[2]];
+
+        if (!copy($tmpFile, $dir . '/' . $name)) {
+            throw new Exception('Cuvanje slike nije uspelo.');
+        }
+
+        // obrisi staru sliku, pa upisi novu
+        if (!empty($doc['_image']) && $this->isValidImageName($doc['_image'])) {
+            @unlink($dir . '/' . $doc['_image']);
+        }
+
+        $doc['_image'] = $name;
+        $doc['_updated'] = date('Y-m-d H:i:s');
+
+        if (!$this->writeDocument($this->getFile($id), $doc)) {
+            @unlink($dir . '/' . $name);
+            throw new Exception('Upis dokumenta nije uspeo.');
+        }
+
+        return $name;
+    }
+
+    /*
+     * Uklanja sliku dokumenta (fajl i referencu).
+     */
+    public function removeImage(string $id): bool
+    {
+        $doc = $this->find($id);
+
+        if ($doc === null || empty($doc['_image'])) {
+            return false;
+        }
+
+        if ($this->isValidImageName($doc['_image'])) {
+            @unlink($this->imageDir() . '/' . $doc['_image']);
+        }
+
+        unset($doc['_image']);
+
+        return $this->writeDocument($this->getFile($id), $doc);
+    }
+
+    /*
+     * Vraca putanju i MIME tip slike (za prikaz), ili null.
+     */
+    public function getImage(string $id): ?array
+    {
+        $doc = $this->find($id);
+
+        if ($doc === null || empty($doc['_image']) || !$this->isValidImageName($doc['_image'])) {
+            return null;
+        }
+
+        $file = $this->imageDir() . '/' . $doc['_image'];
+
+        if (!is_file($file)) {
+            return null;
+        }
+
+        $mimes = ['jpg' => 'image/jpeg', 'png' => 'image/png', 'gif' => 'image/gif', 'webp' => 'image/webp'];
+        $ext = pathinfo($file, PATHINFO_EXTENSION);
+
+        return ['path' => $file, 'mime' => $mimes[$ext] ?? 'application/octet-stream'];
     }
 
     /*
