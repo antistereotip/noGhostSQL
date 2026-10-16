@@ -20,3 +20,9 @@
 #### delete: samo polja, ili ceo dokument
 #### delete k3x9m2pa email
 #### delete k3x9m2pa
+## konzola.php
+##### create ime="Marko" godine=23 @slika=marko.jpg
+##### insert k2x9m2pa email=marko@primer.rs
+##### edit k2x9m2pa godine=28
+##### delete k2x9m2pa
+##### list
