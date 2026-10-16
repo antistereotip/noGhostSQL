@@ -15,8 +15,8 @@
 #### insert: dodaje NOVA polja (greska ako polje vec postoji)
 #### insert k3x9m2pa email=marko@primer.rs telefon="060123456"
 #### edit: menja POSTOJECA polja, -polje brise polje, @slika dodaje/zamenjuje sliku
-#### edit k3x9m2pa godine=26 -telefon
-#### edit k3x9m2pa @slika=marko.jpg
+#### edit k3x9m2pa godine=26 -telefon   ---   isti index za podatke u json-u
+#### edit k3x9m2pa @slika=marko.jpg   ---   isti index za sliku
 #### delete: samo polja, ili ceo dokument
 #### delete k3x9m2pa email
 #### delete k3x9m2pa
