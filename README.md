@@ -26,3 +26,34 @@
 ##### edit k2x9m2pa godine=28
 ##### delete k2x9m2pa
 ##### list
+## Komande
+#### KOMANDE (jedna po liniji; # je komentar; moze i sa zagradama, npr. create(ime="Marko"))
+
+  create  [polja] [@slika=putanja]        novi dokument
+  insert  ID polja [@slika=putanja]       dodaje NOVA polja (greska ako polje vec postoji)
+  edit    ID polja [-polje] [@slika=..]   menja POSTOJECA polja (greska ako ne postoje)
+  delete  ID                              brise ceo dokument (i njegovu sliku)
+  delete  ID polje1 polje2                brise samo navedena polja
+  show    ID                              prikazuje dokument
+  list    [boja|karakter|prefiks]         lista (najvise 50, najnoviji prvo)
+  count                                   broj dokumenata po bojama
+
+#### POLJA
+  ime=Marko   godine=25   grad="Novi Sad"   aktivan=true
+  adresa.grad=Beograd           (tacka pravi ugnezdeno polje)
+  -telefon                      (brise polje, samo u edit)
+  Citav JSON: create {"ime":"Ana","tagovi":["a","b"]}
+  Vrednosti sa razmakom ili zarezom stavi pod navodnike.
+  Brojevi, true, false i null se prepoznaju sami; "25" pod navodnicima ostaje tekst.
+
+#### SLIKE
+  Slike prvo ubaci u folder ulaz/ (upload na stranici ili FTP).
+  @slika=marko.jpg      dodaje ili zamenjuje sliku
+  @slika=-              uklanja sliku
+
+#### PRIMERI
+  create ime="Marko" godine=25 @slika=marko.jpg
+  insert k3x9m2pa email=marko@primer.rs adresa.grad="Novi Sad"
+  edit k3x9m2pa godine=26 -email @slika=nova.png
+  delete k3x9m2pa telefon
+  delete k3x9m2pa
