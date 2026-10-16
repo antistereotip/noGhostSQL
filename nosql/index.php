@@ -1,5 +1,5 @@
 <?php
-
+//die("Silence is golden.");
 require __DIR__ . '/auth.php';
 auth_require();   // bez prijave se ne ide dalje
 
@@ -61,6 +61,99 @@ function containsText(string $haystack, string $needle): bool
     return function_exists('mb_stripos')
         ? mb_stripos($haystack, $needle) !== false
         : stripos($haystack, $needle) !== false;
+}
+
+/*
+ * YOUTUBE: prepoznaje link i vraca ['id' => ..., 'start' => sekunde] ili null.
+ * Podrzava watch?v=, youtu.be/, /embed/, /shorts/, /live/ (i t=90 / t=1m30s / start=90).
+ */
+function youtubeParse(string $url): ?array
+{
+    $url = trim($url);
+
+    if (preg_match('#^(www\.|m\.)?(youtube\.com|youtu\.be)/#i', $url)) {
+        $url = 'https://' . $url;
+    }
+
+    if (!preg_match('#^https?://#i', $url)) {
+        return null;
+    }
+
+    $p = parse_url($url);
+
+    if (!$p || empty($p['host'])) {
+        return null;
+    }
+
+    $host = strtolower((string) preg_replace('/^(www\.|m\.|music\.)/i', '', $p['host']));
+    $path = $p['path'] ?? '';
+    parse_str($p['query'] ?? '', $qs);
+    $id = null;
+
+    if ($host === 'youtu.be') {
+        $id = explode('/', ltrim($path, '/'))[0];
+    } elseif ($host === 'youtube.com' || $host === 'youtube-nocookie.com') {
+        if ($path === '/watch') {
+            $id = $qs['v'] ?? null;
+        } elseif (preg_match('#^/(embed|shorts|live|v)/([^/?]+)#', $path, $m)) {
+            $id = $m[2];
+        }
+    } else {
+        return null;
+    }
+
+    if (!is_string($id) || !preg_match('/^[A-Za-z0-9_-]{11}$/', $id)) {
+        return null;
+    }
+
+    $start = 0;
+    $t = $qs['t'] ?? ($qs['start'] ?? '');
+
+    if (is_string($t) && $t !== '') {
+        if (ctype_digit($t)) {
+            $start = (int) $t;
+        } elseif (preg_match('/^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?$/', $t, $m)) {
+            $start = (int) ($m[1] ?? 0) * 3600 + (int) ($m[2] ?? 0) * 60 + (int) ($m[3] ?? 0);
+        }
+    }
+
+    return ['id' => $id, 'start' => $start];
+}
+
+// trazi YouTube linkove u svim vrednostima dokumenta (i u ugnezdenim poljima)
+function findVideos(array $data, string $prefix = ''): array
+{
+    $out = [];
+
+    foreach ($data as $k => $v) {
+        $path = $prefix === '' ? (string) $k : $prefix . '.' . $k;
+
+        if (is_array($v)) {
+            $out = array_merge($out, findVideos($v, $path));
+        } elseif (is_string($v) && ($yt = youtubeParse($v)) !== null) {
+            $out[] = ['path' => $path] + $yt;
+        }
+    }
+
+    return $out;
+}
+
+// HTML za video plejere; klik na sliku pokrece video (JS ispod)
+function renderVideos(array $data): string
+{
+    $html = '';
+
+    foreach (array_slice(findVideos($data), 0, 5) as $v) {
+        $watch = 'https://www.youtube.com/watch?v=' . $v['id'] . ($v['start'] ? '&t=' . $v['start'] . 's' : '');
+
+        $html .= '<div class="ytwrap"><div class="meta">&#9654; ' . e($v['path']) . '</div>'
+            . '<a class="yt" href="' . e($watch) . '" target="_blank" rel="noopener noreferrer"'
+            . ' data-yt="' . e($v['id']) . '" data-start="' . (int) $v['start'] . '">'
+            . '<img src="https://i.ytimg.com/vi/' . e($v['id']) . '/hqdefault.jpg" alt="" loading="lazy">'
+            . '<span class="play">&#9654;</span></a></div>';
+    }
+
+    return $html;
 }
 
 function flash(string $type, string $msg): void
@@ -293,9 +386,9 @@ usort($docs, fn($a, $b) => $sort === 'old'
 $total = $db->count();
 
 /*
- * PAGINACIJA (11 dokumenata po strani)
+ * PAGINACIJA (11 kartica ili 25 ID-jeva po strani)
  */
-$perPage = 11;
+$perPage = $mode === 'ids' ? 25 : 11;
 $totalDocs = count($docs);
 $pages = max(1, (int) ceil($totalDocs / $perPage));
 $page = min(max(1, (int) ($_GET['p'] ?? 1)), $pages);
@@ -356,6 +449,7 @@ function pageList(int $page, int $pages): array
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>noGhostSQL</title>
+<link rel="icon" type="image/x-icon" href="favicon.png">
 <style>
     :root { --bg:#f5f6f8; --card:#fff; --text:#1d2330; --muted:#6b7280; --line:#e2e5ea; --accent:#2563eb; --danger:#dc2626; --ok:#15803d; }
     @media (prefers-color-scheme: dark) {
@@ -393,6 +487,12 @@ function pageList(int $page, int $pages): array
     .colors a { padding: 4px 12px; border-radius: 999px; border:2px solid var(--c); color:var(--c); text-decoration:none; font-size: 13px; font-weight: 600; }
     .colors a.on { background: var(--c); color:#fff; }
     .dot { display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--c); margin-right:6px; }
+    .ytwrap { margin: 8px 0; }
+    .yt { position:relative; display:block; aspect-ratio:16/9; max-width:560px; background:#000; border-radius:8px; overflow:hidden; margin-top:4px; }
+    .yt img { width:100%; height:100%; object-fit:cover; display:block; }
+    .yt .play { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:64px; height:44px; border-radius:12px; background:rgba(220,0,0,.9); color:#fff; display:flex; align-items:center; justify-content:center; font-size:22px; }
+    .yt:hover .play { background:#f00; }
+    .yt iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
     .seg { display:inline-flex; border:1px solid var(--line); border-radius:6px; overflow:hidden; }
     .seg a { padding:5px 12px; font-size:13px; color:var(--text); text-decoration:none; }
     .seg a.on { background: var(--accent); color:#fff; }
@@ -418,7 +518,7 @@ function pageList(int $page, int $pages): array
     <div class="row" style="justify-content:space-between">
         <div style="flex:1 1 auto">
             <h1>noGhostSQL</h1>
-            <div class="sub">Ukupno dokumenata: <strong><?= $total ?></strong></div>
+            <div class="sub">Ukupno dokumenata: <strong><?= $total ?>.</strong></div>
         </div>
         <form method="post" style="flex:0 0 auto">
             <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
@@ -450,10 +550,10 @@ function pageList(int $page, int $pages): array
                 <input type="hidden" name="back" value="<?= e($backQs) ?>">
             <?php endif; ?>
 
-            <textarea name="content" placeholder="ime: Marko&#10;godine: 25&#10;grad: Beograd"><?=
+            <textarea name="content" placeholder="ime: Marko&#10;godine: 25&#10;grad: Beograd&#10;telefon: 0659999776&#10;mail: primer@mail.com&#10;"><?=
                 $editDoc ? e(json_encode($editDoc['data'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) : ''
             ?></textarea>
-            <div class="hint">Jedno polje po liniji (<code>kljuc: vrednost</code>) ili ceo JSON objekat.</div>
+            <div class="hint">Jedno polje po liniji (<code>kljuc: vrednost</code>) ili ceo JSON objekat.<br>YouTube video: dodaj polje, npr. <code>video: https://youtu.be/ABCDEFGHIJK</code>, pa se svira u dokumentu.</div>
 
             <label class="hint" for="image">Slika (opciono; JPG, PNG, GIF ili WEBP, do 5 MB)</label>
             <input id="image" type="file" name="image" accept="image/jpeg,image/png,image/gif,image/webp" style="margin-bottom:10px">
@@ -563,6 +663,7 @@ function pageList(int $page, int $pages): array
                 <?php if (!empty($doc['_image'])): ?>
                     <img src="image.php?id=<?= e(urlencode($doc['_id'] ?? '')) ?>" alt="" loading="lazy" style="max-height:120px; max-width:100%; border-radius:6px; margin-top:8px">
                 <?php endif; ?>
+                <?= renderVideos((array) ($doc['data'] ?? [])) ?>
                 <pre><?= e(json_encode($doc['data'] ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) ?></pre>
             </div>
         <?php endforeach; ?>
@@ -594,6 +695,8 @@ function pageList(int $page, int $pages): array
                         <?php if (!empty($doc['_image'])): ?>
                             <img src="image.php?id=<?= e(urlencode($did)) ?>" alt="" loading="lazy" style="max-height:160px; max-width:100%; border-radius:6px; margin-bottom:6px">
                         <?php endif; ?>
+
+                        <?= renderVideos((array) ($doc['data'] ?? [])) ?>
 
                         <pre><?= e(json_encode($doc['data'] ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) ?></pre>
 
@@ -671,6 +774,28 @@ document.addEventListener('click', function (ev) {
         try { document.execCommand('copy'); done(); } catch (e) {}
         document.body.removeChild(ta);
     }
+});
+
+// klik na sliku YouTube videa: zameni je plejerom u istom polju
+document.addEventListener('click', function (ev) {
+    var a = ev.target.closest('a.yt[data-yt]');
+    if (!a) return;
+    ev.preventDefault();
+
+    var src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(a.getAttribute('data-yt')) + '?autoplay=1&rel=0';
+    var start = parseInt(a.getAttribute('data-start'), 10);
+    if (start > 0) src += '&start=' + start;
+
+    var f = document.createElement('iframe');
+    f.src = src;
+    f.title = 'YouTube video';
+    f.allow = 'accelerometer; autoplay; encrypted-media; picture-in-picture; fullscreen';
+    f.allowFullscreen = true;
+    f.referrerPolicy = 'strict-origin-when-cross-origin';
+
+    a.innerHTML = '';
+    a.removeAttribute('href');
+    a.appendChild(f);
 });
 
 // "Otvori sve" / "Zatvori sve" u listi ID-jeva

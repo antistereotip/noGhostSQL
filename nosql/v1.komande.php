@@ -1,5 +1,5 @@
 <?php
-//die("Silence is golden.");
+die("Silence is golden.");
 /*
  * komande.php - jezgro tekstualne konzole za MiniNoSQL.
  * Pokrece se preko konzola.php (browser ili terminal).

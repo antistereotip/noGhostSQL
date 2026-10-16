@@ -1,5 +1,5 @@
 <?php
-//die("Silence is golden.");
+die("Silence is golden.");
 /*
  * konzola.php - tekstualna konzola za MiniNoSQL (bez GUI-a za podatke).
  *

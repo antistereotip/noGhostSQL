@@ -219,7 +219,7 @@ function auth_render_login(string $error, string $token): void
 </head>
 <body>
     <form class="box" method="post" autocomplete="on">
-        <h1>MiniNoSQL</h1>
+        <h1>noGhostSQL</h1>
         <div class="sub">Prijavi se za nastavak</div>
 
         <?php if ($error !== ''): ?>

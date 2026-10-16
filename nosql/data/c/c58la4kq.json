@@ -1,0 +1,16 @@
+{
+    "_id": "c58la4kq",
+    "data": {
+        "ime": "Niko",
+        "prezime": "Nista",
+        "pesma": "Dino Merlin Lelo",
+        "samoca": "Moj podstanar",
+        "budim se i lezem sa": "Svojim podstanarem",
+        "podatak": "Moze biti bilo koj string, integer itd.",
+        "fajl": "Linux sve gleda kao fajl, sve je podatak.",
+        "video": "https://www.youtube.com/watch?v=mpRpP7TZGRY&list=RDmpRpP7TZGRY&start_radio=1"
+    },
+    "_created": "2026-10-16 06:08:27",
+    "_updated": "2026-10-16 07:08:35",
+    "_image": "c58la4kq_0f8cdb5e.png"
+}
