@@ -1,4 +1,4 @@
-### Pretraga, indeksiranje i pohranjivanje putem boje:
+Pretraga, indeksiranje i pohranjivanje putem boje:
 
 Boja se ne čuva nigde. Računa se iz prvog karaktera ID-a, a prvi karakter ID-a je već ono što određuje u kom folderu je dokument.
 
