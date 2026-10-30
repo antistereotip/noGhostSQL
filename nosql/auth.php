@@ -7,8 +7,9 @@
  *   Otvori hash.php u browseru i postavi korisnicko ime i lozinku.
  *   Podaci se upisuju u auth_config.php, pa ne moras da menjas ovaj fajl.
  *   (Konstante ispod su samo rezerva ako auth_config.php ne postoji.)
+ * ../auth/hash/hash.php
  */
-// ../auth/hash/hash.php
+ 
 const AUTH_USER = 'admin';
 const AUTH_HASH = '';                 // <-- ovde ide hash (php auth.php lozinka)
 const AUTH_SESSION_TTL = 8 * 3600;    // sesija traje 8 sati
