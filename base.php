@@ -92,13 +92,7 @@ KISS (Keep It Simple Stupid).
 <a href="#" style="text-deocration: none; color: royalblue;">Dalje nećes proći ...</a>
 </pre>
 
-<pre>
-For premium users: <a href="https://usk.rs/RP/DB/nosql/">https://usk.rs/RP/DB/nosql/</a>. After purchasing a package of our services, you get one 
-hash file that you run inside the auth.php folder and generate a password that you insert into auth.php 
-and then everything is ready to log in with the desired password. You have many new features in the GUI 
-and you can literally manipulate any data just by handling it within the graphical environment, and you 
-also have a console, console.php, through which you can use commands to manipulate data.
-</pre>
+
 
 
 <pre>
@@ -134,7 +128,7 @@ data/
 ├── i/
 ├── ...
 ├── w
-│   └── <b style="color: red;">w</b>xer45gz.json <b style="color: red;">w</b>fdr5rgz.json <b style="color: red;">w</b>ert0tgz.json ... <b style="color: red;">alfa-gui.php?bucket=w</b>
+│   └── <b style="color: red;">w</b>xer45gz.json <b style="color: red;">w</b>fdr5rgz.json <b style="color: red;">w</b>ert0tgz.json ... 
 └── 9/
 </pre>
 
@@ -265,6 +259,14 @@ The colors that serve as flags for indexing are actually a horizontal layer of i
 because they bring all the colors to the surface and if the data hits vertically, the speed is less than a millisecond.
 </pre>
 
+
+<pre>
+On github in noGhostSQL there is a complete initial version in the root directory with alpha and beta GUI. This should serve as a graphical 
+demo of the database. The real version is in the nosql directory on the noGhostSQL repository. That's why we provide this as open source? 
+Because we believe in free software. All that we will support you more chargeable, like BOFH :)
+</pre>
+
+
 <pre>
 When you have a graphical database environment in front of you, any *-gui.php 
 file on Github, protect it with authentication so that only you can access it, 
@@ -362,6 +364,69 @@ This is the noGhostSQL <b style="color: red;">beta-gui</b> example, You can inse
 Now you can put image. For video we will take some more time to do.<br><br>
 <img src="https://usk.rs/RP/DB/capture3.png" alt="noGhostSQL" width="33%" style="border: 1px solid #999; border-radius: 14px; padding: 4px;">
 </pre><br>
+
+<pre>
+Finally, the base is finished and the alpha-gui and beta-gui are no longer functional, although the alpha version brought only a base without color, 
+the beta version brought a base with color, but in the meantime, a lot of work was done in the PHP programming language. Now I will leave the link 
+here because this is neither alpha nor beta, this is v3 which finally does what the user wants. Link: https://usk.rs/RP/DB/view.php
+And the admin panel is on index.php with the fact that credentials are required. We don't have a demo for now, only admin has access and that's it.
+</pre>
+
+
+
+<pre>
+This is the front end of the database where someone clicked on the red color and only the data from there was opened.
+<br>
+<img src="https://usk.rs/RP/DB/capture4.png" alt="noGhostSQL" width="33%" style="border: 1px solid #999; border-radius: 14px; padding: 4px;">
+</pre><br>
+
+
+<pre>
+The colors in the sql database represent only filters for now. However, I will increase the number of characters, I will assign a character to the 
+color and instead of 36 characters I will have 40 because I will insert the four basic colors, and then it will be for both the index and the filter.><br>
+<img src="https://usk.rs/RP/DB/capture5.png" alt="noGhostSQL" width="33%" style="border: 1px solid #999; border-radius: 14px; padding: 4px;">
+</pre><br>
+
+
+<pre>
+This is the admin panel, it's a bit confusing because the data has to match so that it can be packed into json right away. I'm still working on that.
+<br>
+<img src="https://usk.rs/RP/DB/capture6.png" alt="noGhostSQL" width="33%" style="border: 1px solid #999; border-radius: 14px; padding: 4px;">
+</pre><br>
+
+
+<pre>
+See how much fun it is to create a project that may one day be the largest database in the world. All that is needed is to work on it. 
+Next is the javascript stack, node JS for the backend and vanilla javascript for the frontend. It won't shoot at 2k/s. It won't shoot 
+even at 200k/s. It will be scalable. There will be a lot of bugs, but the supported version has no problems.
+</pre><br>
+
+
+
+<pre>
+The free, open source version is online at <a href="https://github.com/antistereotip/noGhostSQL">https://github.com/antistereotip/noGhostSQL</a> 
+and the version with support for sites with over 5000 images, but ten times more, is from 500e per month to 1000e per month. The price can be 
+formed annually. Mainly the point of the paid version is support for everything in real time. You need new functionality, we implement it. 
+The concept is similar to RedHat.
+</pre><br>
+
+<!-- <pre>
+For premium users: <a href="https://usk.rs/RP/DB/nosql/view.php">https://usk.rs/RP/DB/nosql/</a>. 
+After purchasing a package of our services, you get one hash file that you run inside the auth.php 
+folder and generate a password that you insert into auth.php and then everything is ready to log 
+in with the desired password. You have many new features in the GUI and you can literally 
+manipulate any data just by handling it within the graphical environment, and you 
+also have a console, console.php, through which you can use commands to manipulate data.
+Premium users have 24/7 support and have the right to request new functionalities.
+</pre> -->
+
+
+<pre>
+However, we also offer support for sites with over a million images and videos. We guarantee that when the free version of nodeJS is released. 
+Tech for JS base is nodeJS, VanillaJS, typescript html5, css3. You can also host the database with us, where the storage fee is paid. But we 
+deliver data faster than your server. Our server tech is based on a proxy, so they pull data very quickly. Basically, we'll see what happens.
+</pre><br>
+
 
 
 
